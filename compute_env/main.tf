@@ -24,11 +24,15 @@ resource "aws_iam_role_policy_attachment" "aws_batch_service_role" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
 }
 
+module "instance_role" {
+  source = "./instance_role"
+}
+
 resource "aws_batch_compute_environment" "compute" {
-  compute_environment_name = "environment"
+  compute_environment_name = "environment2"
 
   compute_resources {
-    instance_role = var.instance_role_arn
+    instance_role = module.instance_role.arn
 
     instance_type = [
       "c4.large",
@@ -53,4 +57,10 @@ resource "aws_batch_compute_environment" "compute" {
 
   service_role = aws_iam_role.aws_batch_service_role.arn
   type         = "MANAGED"
+
+  # Ugh...b/c of this issue, have to change the name each time this gets destroy/created
+  # https://github.com/terraform-providers/terraform-provider-aws/issues/2044
+  lifecycle {
+    create_before_destroy = true
+  }
 }

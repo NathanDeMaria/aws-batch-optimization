@@ -12,10 +12,6 @@ provider "aws" {
   region  = "us-east-2"
 }
 
-module "instance_role" {
-  source = "./instance_role"
-}
-
 module "network" {
   source = "./network"
 }
@@ -23,7 +19,6 @@ module "network" {
 module "compute_env" {
   source = "./compute_env"
 
-  instance_role_arn = module.instance_role.arn
   security_group_id = module.network.security_group_id
   subnet_id         = module.network.subnet_id
 }
