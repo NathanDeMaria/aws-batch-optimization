@@ -12,6 +12,15 @@ provider "aws" {
   region  = "us-east-2"
 }
 
+module "buckets" {
+  source = "./buckets"
+}
+
+module "job_role" {
+  source     = "./job_role"
+  bucket_arn = module.buckets.temp_bucket_arn
+}
+
 module "network" {
   source = "./network"
 }
