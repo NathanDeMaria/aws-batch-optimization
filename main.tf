@@ -32,7 +32,7 @@ module "compute_env" {
   subnet_id         = module.network.subnet_id
 }
 
-resource "aws_batch_job_queue" "test_queue" {
+resource "aws_batch_job_queue" "queue" {
   name     = "job-queue"
   state    = "ENABLED"
   priority = 1

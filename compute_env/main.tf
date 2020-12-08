@@ -29,7 +29,7 @@ module "instance_role" {
 }
 
 resource "aws_batch_compute_environment" "compute" {
-  compute_environment_name = "environment2"
+  compute_environment_name = "environment"
 
   compute_resources {
     instance_role = module.instance_role.arn
@@ -63,4 +63,14 @@ resource "aws_batch_compute_environment" "compute" {
   lifecycle {
     create_before_destroy = true
   }
+
+  # If you don't depends_on this, the compute environment can enter an "INVALID"
+  # state because it won't have permissions it thinks it needs,
+  # so any API calls to edit (or delete) it will fail.
+  # This makes sure that the compute env is deleted before the attachment, 
+  # which doesn't happen by default because the only resource referenced
+  # directly on this resource is the role, not the attachment
+  depends_on = [
+    aws_iam_role_policy_attachment.aws_batch_service_role
+  ]
 }
