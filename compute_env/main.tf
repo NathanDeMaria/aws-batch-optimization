@@ -28,6 +28,10 @@ module "instance_role" {
   source = "./instance_role"
 }
 
+module "spot_fleet_role" {
+  source = "./spot_fleet_role"
+}
+
 resource "aws_batch_compute_environment" "compute" {
   compute_environment_name_prefix = "environment"
 
@@ -52,7 +56,8 @@ resource "aws_batch_compute_environment" "compute" {
     ]
 
     type                = "SPOT"
-    spot_iam_fleet_role = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecsSpotFleetRole"
+    spot_iam_fleet_role = module.spot_fleet_role.arn
+    bid_percentage      = 100
   }
 
   service_role = aws_iam_role.aws_batch_service_role.arn
