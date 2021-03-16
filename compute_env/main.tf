@@ -41,8 +41,8 @@ resource "aws_batch_compute_environment" "compute" {
     instance_type = [
       "c4.large",
     ]
-    # latest Amazon ECS-optimized Amazon Linux 2 AMI (amzn2-ami-ecs-hvm-2.0.20201130-x86_64-ebs)
-    image_id = "ami-0583ca2f3ce809fcb"
+    # latest Amazon ECS-optimized Amazon Linux 2 AMI (amzn2-ami-ecs-hvm-2.0.20210301-x86_64-ebs)
+    image_id = "ami-02ef98ccecbf47e86"
 
     max_vcpus = 16
     min_vcpus = 0
