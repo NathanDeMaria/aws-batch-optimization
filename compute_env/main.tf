@@ -29,7 +29,7 @@ module "instance_role" {
 }
 
 resource "aws_batch_compute_environment" "compute" {
-  compute_environment_name = "environment"
+  compute_environment_name_prefix = "environment"
 
   compute_resources {
     instance_role = module.instance_role.arn
