@@ -32,6 +32,14 @@ module "spot_fleet_role" {
   source = "./spot_fleet_role"
 }
 
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnet_ids" "subnet_ids" {
+  vpc_id = data.aws_vpc.default.id
+}
+
 resource "aws_batch_compute_environment" "compute" {
   compute_environment_name_prefix = "environment"
 
@@ -50,10 +58,7 @@ resource "aws_batch_compute_environment" "compute" {
     security_group_ids = [
       var.security_group_id,
     ]
-
-    subnets = [
-      var.subnet_id,
-    ]
+    subnets = data.aws_subnet_ids.subnet_ids.ids
 
     type                = "SPOT"
     spot_iam_fleet_role = module.spot_fleet_role.arn
