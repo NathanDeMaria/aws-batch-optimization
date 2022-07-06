@@ -5,6 +5,13 @@ terraform {
       version = "~> 3.20.0"
     }
   }
+
+  backend "s3" {
+    bucket         = "nathan-terraform"
+    encrypt        = true
+    key            = "batch-state"
+    region         = "us-east-2"
+  }
 }
 
 provider "aws" {
