@@ -7,10 +7,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "nathan-terraform"
-    encrypt        = true
-    key            = "batch-state"
-    region         = "us-east-2"
+    bucket  = "nathan-terraform"
+    encrypt = true
+    key     = "batch-state"
+    region  = "us-east-2"
   }
 }
 
@@ -21,11 +21,12 @@ provider "aws" {
 
 module "buckets" {
   source = "./buckets"
+  prefix = "nathan"
 }
 
 module "job_role" {
-  source     = "./job_role"
-  bucket_arn = module.buckets.temp_bucket_arn
+  source      = "./job_role"
+  bucket_arns = module.buckets.arns
 }
 
 module "network" {
