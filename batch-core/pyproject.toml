@@ -10,7 +10,7 @@ aiobotocore = "^1.2.2"
 dataclasses-json = "^0.5.7"
 
 [tool.poetry.dev-dependencies]
-black = "^20.8b1"
+black = "^22.6.0"
 pytest = "^6.2.2"
 pylint = "^2.7.2"
 mypy = "^0.812"

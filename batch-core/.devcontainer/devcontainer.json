@@ -32,7 +32,8 @@
   },
   "extensions": [
     "ms-python.python",
-    "ms-python.vscode-pylance"
+    "ms-python.vscode-pylance",
+    "sourcery.sourcery"
   ],
   "mounts": [
     "source=batch-core-bashhistory,target=/commandhistory,type=volume"
