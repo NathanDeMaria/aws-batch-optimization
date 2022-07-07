@@ -5,11 +5,7 @@ from uuid import uuid4
 import aiobotocore
 from botocore.exceptions import ClientError
 
-
-# Matches name in infra/buckets/main.tf
-_BUCKET_NAME = "nathan-batch-temp-bucket"
-# Matches name in infra/main.tf
-_JOB_QUEUE = "job-queue"
+from .config import Config
 
 
 class TaskDefinition:
@@ -26,11 +22,12 @@ class TaskDefinition:
         arn: str,
         s3_client: aiobotocore.session.AioBaseClient,
         batch_client: aiobotocore.session.AioBaseClient,
+        config: Config = None,
     ):
         self._arn = arn
-
         self._s3_client = s3_client
         self._batch_client = batch_client
+        self._config = config or Config.load()
 
     async def run(self, **kwargs: float):
         """
@@ -48,7 +45,7 @@ class TaskDefinition:
 
         await self._batch_client.submit_job(
             jobName=job_name,
-            jobQueue=_JOB_QUEUE,
+            jobQueue=self._config.job_queue_name,
             jobDefinition=self._arn,
             containerOverrides=dict(command=command),
         )
@@ -62,7 +59,9 @@ class TaskDefinition:
     async def _get_from_s3_eventually(self, key: str):
         while True:
             try:
-                return await self._s3_client.get_object(Bucket=_BUCKET_NAME, Key=key)
+                return await self._s3_client.get_object(
+                    Bucket=self._config.temp_bucket, Key=key
+                )
             except ClientError as error:
                 if error.response["Error"]["Code"] != "NoSuchKey":
                     raise error
