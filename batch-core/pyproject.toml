@@ -6,6 +6,8 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.10"
+aiobotocore = "^2.3.4"
+dataclasses-json = "^0.5.7"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
