@@ -9,3 +9,7 @@ output "temp_bucket" {
 output "job_queue_name" {
   value = aws_batch_job_queue.queue.name
 }
+
+output "job_role_arn" {
+  value = module.job_role.arn
+}
