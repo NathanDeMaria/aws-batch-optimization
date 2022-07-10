@@ -1,1 +1,2 @@
-from .task_definition import TaskDefinition, create_task_definition
+from .job_definition import JobDefinition
+from .optimization_task import OptimizationTask, create_job_definition

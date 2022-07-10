@@ -2,13 +2,13 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 from uuid import uuid4
-import aiobotocore
+from aiobotocore.session import AioBaseClient, get_session
 from botocore.exceptions import ClientError
 
 from .config import Config
 
 
-class TaskDefinition:
+class OptimizationTask:
     """
     Run some task with parameters:
     - location to write a text file to on S3
@@ -20,8 +20,8 @@ class TaskDefinition:
     def __init__(
         self,
         arn: str,
-        s3_client: aiobotocore.session.AioBaseClient,
-        batch_client: aiobotocore.session.AioBaseClient,
+        s3_client: AioBaseClient,
+        batch_client: AioBaseClient,
         config: Config = None,
     ):
         self._arn = arn
@@ -69,11 +69,11 @@ class TaskDefinition:
 
 
 @asynccontextmanager
-async def create_task_definition(arn: str) -> AsyncIterator[TaskDefinition]:
+async def create_job_definition(arn: str) -> AsyncIterator[OptimizationTask]:
     """
     Create a task def that'll run batch tasks
     """
-    session = aiobotocore.get_session()
+    session = get_session()
     async with session.create_client("s3") as s3_client:
         async with session.create_client("batch") as batch_client:
-            yield TaskDefinition(arn, s3_client, batch_client)
+            yield OptimizationTask(arn, s3_client, batch_client)

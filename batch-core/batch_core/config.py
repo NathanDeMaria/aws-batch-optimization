@@ -17,6 +17,7 @@ class Config(DataClassJsonMixin):
     bucket: str
     temp_bucket: str
     job_queue_name: str
+    job_role_arn: str
 
     @classmethod
     def load(cls, file_path: str = None):
