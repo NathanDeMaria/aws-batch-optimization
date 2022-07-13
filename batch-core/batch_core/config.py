@@ -18,6 +18,8 @@ class Config(DataClassJsonMixin):
     temp_bucket: str
     job_queue_name: str
     job_role_arn: str
+    # [repo name] -> repository_url
+    repo_urls: dict[str, str]
 
     @classmethod
     def load(cls, file_path: str = None):

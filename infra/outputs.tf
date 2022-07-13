@@ -13,3 +13,7 @@ output "job_queue_name" {
 output "job_role_arn" {
   value = module.job_role.arn
 }
+
+output "repo_urls" {
+  value = module.repos.named_urls
+}

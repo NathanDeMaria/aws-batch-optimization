@@ -47,3 +47,7 @@ resource "aws_batch_job_queue" "queue" {
     module.compute_env.arn,
   ]
 }
+
+module "repos" {
+  source = "./repos"
+}
