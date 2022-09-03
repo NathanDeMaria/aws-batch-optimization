@@ -24,7 +24,7 @@ class JobDefinition:
         if config is None:
             config = Config.load()
         response = await batch_client.register_job_definition(
-            jobDefinitionName=image,
+            jobDefinitionName=image.split("/")[-1],
             type="container",
             containerProperties={
                 "image": image,
@@ -36,7 +36,7 @@ class JobDefinition:
         )
         return cls(batch_client, response["jobDefinitionArn"], config)
 
-    async def run(self) -> Job:
+    async def run(self, *args, **kwargs) -> Job:
         """
         Run an instance of this job
         """
@@ -45,6 +45,10 @@ class JobDefinition:
             jobName=f"{name_base}-{int(datetime.now(timezone.utc).timestamp())}",
             jobQueue=self._config.job_queue_name,
             jobDefinition=self._arn,
-            # containerOverrides=dict(command=command),
+            containerOverrides=dict(command=_build_command(args, kwargs)),
         )
         return Job(job["jobId"], self._batch_client)
+
+
+def _build_command(args: tuple[str, ...], kwargs: dict[str, str]) -> list[str]:
+    return list(args) + [f"--{k}={v}" for k, v in kwargs.items()]
