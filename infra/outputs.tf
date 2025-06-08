@@ -17,3 +17,8 @@ output "job_role_arn" {
 output "repo_urls" {
   value = module.repos.named_urls
 }
+
+output "ecr_iam_users" {
+  value     = module.repos.ecr_iam_users
+  sensitive = true
+}
