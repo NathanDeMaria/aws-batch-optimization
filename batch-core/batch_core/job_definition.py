@@ -30,7 +30,7 @@ class JobDefinition:
                 "image": image,
                 "jobRoleArn": config.job_role_arn,
                 "vcpus": 1,
-                "memory": 1000,  # MiB
+                "memory": 3500,  # MiB
                 # do I need this? "executionRoleArn": "???",
             },
         )
