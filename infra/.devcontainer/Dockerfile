@@ -1,3 +1,28 @@
-FROM hashicorp/terraform@sha256:ef828667eca97a3ad9b8f26918b68170bcb3066cd9ba9540da73a608c6b4a2bb
+# :22.04
+FROM ubuntu@sha256:104ae83764a5119017b8e8d6218fa0832b09df65aae7d5a6de29a85d813da2fb
 
-RUN apk add --update make gnupg
+ARG TERRAFORM_VERSION=1.6.6
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    bash \
+    curl \
+    git \
+    openssh-client \
+    ca-certificates \
+    jq \
+    unzip \
+    python3 \
+    python3-pip \
+    less \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+    -o terraform.zip \
+ && unzip terraform.zip \
+ && mv terraform /usr/local/bin/terraform \
+ && rm terraform.zip
+
+WORKDIR /workspace
+ENTRYPOINT ["/bin/bash"]
