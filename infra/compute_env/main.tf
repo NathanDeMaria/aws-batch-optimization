@@ -47,7 +47,9 @@ resource "aws_batch_compute_environment" "compute" {
     instance_role = module.instance_role.arn
 
     instance_type = [
-      "c4.large",
+      "m6i.large",
+      "m6a.large",
+      "r6i.large"
     ]
     # latest Amazon ECS-optimized Amazon Linux 2 AMI (amzn2-ami-ecs-hvm-2.0.20210301-x86_64-ebs)
     image_id = "ami-02ef98ccecbf47e86"

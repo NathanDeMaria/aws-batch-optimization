@@ -1,5 +1,13 @@
 resource "aws_s3_bucket" "bucket" {
   bucket = "${var.prefix}-batch-bucket"
+  
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
 }
 
 resource "aws_s3_bucket" "temp_bucket" {
@@ -10,6 +18,14 @@ resource "aws_s3_bucket" "temp_bucket" {
 
     expiration {
       days = 7
+    }
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
     }
   }
 }
