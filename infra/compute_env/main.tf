@@ -51,9 +51,12 @@ resource "aws_batch_compute_environment" "compute" {
       "m6a.large",
       "r6i.large"
     ]
-    # latest Amazon ECS-optimized Amazon Linux 2 AMI (amzn2-ami-ecs-hvm-2.0.20210301-x86_64-ebs)
-    image_id = "ami-02ef98ccecbf47e86"
-
+    # aws ssm get-parameters \
+    #  --names /aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id \
+    #  --region us-east-2 \
+    #  --query "Parameters[0].Value" \
+    #  --output text
+    image_id = "ami-06ba285c80bc4ab50"
     max_vcpus = 16
     min_vcpus = 0
 
