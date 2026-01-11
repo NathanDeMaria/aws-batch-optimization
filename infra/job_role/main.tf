@@ -24,6 +24,7 @@ resource "aws_iam_role_policy" "bucket_io" {
         Action : [
           "s3:GetObject",
           "s3:PutObject",
+          "s3:ListBucket",
         ],
         Effect : "Allow",
         Resource : concat(var.bucket_arns, [for arn in var.bucket_arns : "${arn}/*"]),
