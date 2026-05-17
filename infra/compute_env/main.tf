@@ -36,12 +36,15 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnet_ids" "subnet_ids" {
-  vpc_id = data.aws_vpc.default.id
+data "aws_subnets" "subnet_ids" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
 }
 
 resource "aws_batch_compute_environment" "compute" {
-  compute_environment_name_prefix = "environment"
+  name_prefix = "environment"
 
   compute_resources {
     instance_role = module.instance_role.arn
@@ -63,7 +66,7 @@ resource "aws_batch_compute_environment" "compute" {
     security_group_ids = [
       var.security_group_id,
     ]
-    subnets = data.aws_subnet_ids.subnet_ids.ids
+    subnets = data.aws_subnets.subnet_ids.ids
 
     type                = "SPOT"
     spot_iam_fleet_role = module.spot_fleet_role.arn

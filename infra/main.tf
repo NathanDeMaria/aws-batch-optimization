@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.20.0"
+      version = "~> 6.44"
     }
   }
 
@@ -43,9 +43,11 @@ resource "aws_batch_job_queue" "queue" {
   name     = "job-queue"
   state    = "ENABLED"
   priority = 1
-  compute_environments = [
-    module.compute_env.arn,
-  ]
+
+  compute_environment_order {
+    order               = 1
+    compute_environment = module.compute_env.arn
+  }
 }
 
 module "repos" {
