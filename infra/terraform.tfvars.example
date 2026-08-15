@@ -1,0 +1,10 @@
+# Every variable has a default; copy this to terraform.tfvars only to override.
+
+# github_repository    = "NathanDeMaria/aws-batch-optimization"
+# state_bucket         = "nathan-terraform"
+# resource_name_prefix = "batch"
+
+# Set true only if this AWS account has no GitHub Actions OIDC provider yet.
+# IAM permits exactly one per URL, and invisible-string creates one in this
+# same account -- so the default here is false.
+# create_oidc_provider = true

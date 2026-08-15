@@ -1,3 +1,31 @@
-.terraform
-terraform.*
-.terraform*
+# Was `.terraform`, `terraform.*`, `.terraform*`. `terraform.*` is unanchored,
+# so it matched any file named terraform.<anything> at any depth -- including
+# .github/workflows/terraform.yml, which git then refused to add with no
+# explanation given. Replaced with the specific things worth ignoring.
+
+# Local .terraform directories
+.terraform/
+**/.terraform/*
+
+# State, and the S3-native lock file
+*.tfstate
+*.tfstate.*
+*.tflock
+
+# Crash logs
+crash.log
+crash.*.log
+
+# tfvars can carry account-specific values; the .example is the checked-in
+# template and has to survive the rule above it.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# CLI configuration
+.terraformrc
+terraform.rc
+
+# NB: .terraform.lock.hcl is deliberately no longer ignored. Committing it pins
+# provider versions so CI and a laptop resolve the same ones. There isn't one
+# in the repo yet -- run `terraform init` and commit what it writes.

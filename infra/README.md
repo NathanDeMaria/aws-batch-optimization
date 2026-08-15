@@ -1,0 +1,88 @@
+# infra
+
+The shared AWS Batch stack: queue, compute environment, network, buckets, ECR
+repositories, and the IAM that ties them together.
+
+## CI
+
+`terraform` runs in GitHub Actions ([`.github/workflows/terraform.yml`][wf]),
+following the same pattern as [invisible-string][is]:
+
+| Job | When | Credentials |
+| --- | --- | --- |
+| `lint` | every push and PR touching `infra/**` | none |
+| `plan` | every branch and PR except main | `AWS_PLAN_ROLE_ARN` |
+| `apply` | push to main | `AWS_APPLY_ROLE_ARN` |
+
+[wf]: ../.github/workflows/terraform.yml
+[is]: https://github.com/NathanDeMaria/invisible-string/tree/main/infra
+
+Plans comment on the PR and update in place, so a chatty branch doesn't
+accumulate one plan comment per push.
+
+### Why two roles
+
+`terraform plan` executes provider code and runs on every branch and PR,
+including from a fork's PR if that's ever enabled. It must not be able to reach
+credentials that can change anything. So:
+
+- **plan role** — `ReadOnlyAccess`, plus write on this stack's state object and
+  its lock file. Trusts `ref:refs/heads/*` *and* `pull_request`, because a PR's
+  OIDC subject carries no ref at all — a policy trusting only refs fails on
+  every PR.
+- **apply role** — `PowerUserAccess` (everything but IAM) plus IAM scoped to
+  the names this stack owns. Trusts `refs/heads/main` literally, so a branch
+  named `main-hotfix` can't match.
+
+`PowerUserAccess` denies IAM outright, and this stack is mostly IAM, so the
+apply role carries a hand-written policy for it. invisible-string scopes that
+to a single `${prefix}-*`; here the pre-existing roles are named `job-role`,
+`ecs_instance_role`, `spot-fleet-role` and `aws_batch_service_role`, so those
+four are listed individually and everything new goes under `batch-*`. Keep new
+IAM under that prefix and the list stops growing.
+
+The sharpest grant is `iam:CreateAccessKey`, needed because `repos/` mints a
+push user per ECR repository. It's scoped to `ecr-pusher-*` on the `/system/`
+path, and those users can push to exactly one repository each.
+
+### Setup
+
+The roles are created by this stack, so the first apply is from a laptop.
+
+```bash
+make apply                 # creates batch-ci-plan and batch-ci-apply
+gh variable set AWS_PLAN_ROLE_ARN  --body "$(terraform output -raw ci_plan_role_arn)"
+gh variable set AWS_APPLY_ROLE_ARN --body "$(terraform output -raw ci_apply_role_arn)"
+```
+
+Repository **variables**, not secrets — a role ARN isn't secret, and the
+workflow compares them against `''` to stay dormant until they're set. Before
+that, `lint` is the only job that runs; `plan` and `apply` skip rather than
+fail red.
+
+`create_oidc_provider` defaults to **false** here. IAM permits one OIDC
+provider per URL per account and invisible-string creates one in this same
+account, so this stack expects to find it. If this account has none yet, set it
+true here and false there.
+
+## Local use
+
+```bash
+make plan
+make apply
+make outputs      # applies, then writes ~/.aws-batch/config.json
+make lint         # what CI runs; no credentials needed
+```
+
+`make outputs` is what the app repos read for bucket names, the queue name and
+ECR URLs. It contains ECR push credentials, so it stays out of the repo.
+
+## Notes
+
+- The provider deliberately does **not** set `profile = "default"`. OIDC hands
+  credentials to Actions as environment variables, and naming a profile makes
+  the provider look for `~/.aws/credentials` and fail. With no profile named
+  the SDK still reads the `default` profile locally, so nothing changes there.
+- The S3 backend uses `use_lockfile` (S3-native locking, no DynamoDB table).
+  That matters now that CI applies: two overlapping runs would otherwise write
+  the same state with nothing stopping them.
