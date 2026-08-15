@@ -59,7 +59,7 @@ resource "aws_batch_compute_environment" "compute" {
     #  --region us-east-2 \
     #  --query "Parameters[0].Value" \
     #  --output text
-    image_id = "ami-06ba285c80bc4ab50"
+    image_id  = "ami-06ba285c80bc4ab50"
     max_vcpus = 16
     min_vcpus = 0
 

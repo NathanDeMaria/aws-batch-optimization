@@ -11,12 +11,21 @@ terraform {
     encrypt = true
     key     = "batch-state"
     region  = "us-east-2"
+
+    # S3-native locking, so there's no DynamoDB table to provision. Matters
+    # now that CI applies: two overlapping runs would otherwise write the same
+    # state with nothing stopping them.
+    use_lockfile = true
   }
 }
 
 provider "aws" {
-  profile = "default"
-  region  = "us-east-2"
+  # Deliberately not `profile = "default"`. GitHub Actions gets credentials
+  # from OIDC as environment variables, and naming a profile makes the
+  # provider look for ~/.aws/credentials instead and fail with "no valid
+  # credential sources". Leaving it unset costs nothing locally: with no
+  # profile named, the SDK reads the `default` profile anyway.
+  region = "us-east-2"
 }
 
 module "buckets" {

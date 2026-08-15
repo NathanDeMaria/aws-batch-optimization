@@ -7,10 +7,10 @@ output "ecr_iam_users" {
   value = {
     for name, user in aws_iam_user.ecr_pusher :
     name => {
-      user_arn  = user.arn
-      user_name = user.name
-      access_key = aws_iam_access_key.ecr_access_key[name].id
-      secret_key = aws_iam_access_key.ecr_access_key[name].secret
+      user_arn         = user.arn
+      user_name        = user.name
+      access_key       = aws_iam_access_key.ecr_access_key[name].id
+      secret_key       = aws_iam_access_key.ecr_access_key[name].secret
       encrypted_secret = aws_iam_access_key.ecr_access_key[name].encrypted_secret
     }
   }
