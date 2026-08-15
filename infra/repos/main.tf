@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "repos" {
-  for_each = toset(["endgame"])
+  for_each = toset(["endgame", "cassandra"])
 
   name                 = each.key
   image_tag_mutability = "MUTABLE"

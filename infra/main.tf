@@ -53,3 +53,11 @@ resource "aws_batch_job_queue" "queue" {
 module "repos" {
   source = "./repos"
 }
+
+# Roles every job needs, regardless of which repo deploys it. Apps still bring
+# their own job role -- that's the one that varies with what the code touches.
+module "batch_roles" {
+  source = "./batch_roles"
+
+  job_queue_arn = aws_batch_job_queue.queue.arn
+}
