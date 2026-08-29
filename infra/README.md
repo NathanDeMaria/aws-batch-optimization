@@ -86,3 +86,10 @@ ECR URLs. It contains ECR push credentials, so it stays out of the repo.
 - The S3 backend uses `use_lockfile` (S3-native locking, no DynamoDB table).
   That matters now that CI applies: two overlapping runs would otherwise write
   the same state with nothing stopping them.
+- The data bucket is **versioned, with noncurrent versions expiring after 30
+  days**. Its objects are rewritten in place — the season files are replaced
+  wholesale by every daily job run — so without versions a bad pull overwrites
+  good data with no way back. The window is the entire cost dial: the objects
+  churn daily, so N days of retention is roughly N stale copies of each, and
+  the steady-state bill is (bytes rewritten per day) x N. The temp bucket is
+  left unversioned, since everything in it expires after seven days anyway.
