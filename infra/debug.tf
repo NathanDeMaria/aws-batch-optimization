@@ -22,7 +22,7 @@ resource "aws_iam_user" "debug" {
   path = "/system/"
 
   tags = {
-    Description = "Assumes ${local.debug_name}; holds nothing else"
+    Description = "Assumes ${local.debug_name} and holds nothing else"
   }
 
   # Its ARN only comes into the apply role's reach with the ci_apply_iam
