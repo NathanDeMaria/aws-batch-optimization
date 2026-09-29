@@ -79,6 +79,35 @@ make lint         # what CI runs; no credentials needed
 `make outputs` is what the app repos read for bucket names, the queue name and
 ECR URLs. It contains ECR push credentials, so it stays out of the repo.
 
+## Debugging
+
+`batch-debug` (`debug.tf`) is for looking into jobs by hand, across every app
+on the queue: describe and list jobs, read `/aws/batch/job` logs, schedules,
+image tags and both buckets, and submit, cancel or terminate jobs on the
+shared queue. It changes no infrastructure and passes no role, so a submitted
+job runs with the roles its definition already names.
+
+It's assumed from the `batch-debug` user on `/system/`, which can do nothing
+but that. The user's access key is made by hand so it never lands in state:
+
+```bash
+aws iam create-access-key --user-name batch-debug
+```
+
+Then, wherever the key lives (a laptop, or a Claude Code environment's
+settings as `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`), a profile that
+assumes the role from it:
+
+```ini
+# ~/.aws/config
+[profile batch-debug]
+role_arn          = arn:aws:iam::<account>:role/batch-debug
+credential_source = Environment
+```
+
+To let another identity debug, add it to the role's trust rather than handing
+out a second key.
+
 ## Notes
 
 - The provider deliberately does **not** set `profile = "default"`. OIDC hands
