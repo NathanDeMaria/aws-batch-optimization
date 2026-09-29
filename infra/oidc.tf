@@ -58,9 +58,12 @@ locals {
   ]
 
   # The path matters: `repos` puts these users on `/system/`, and the ARN of a
-  # user with a path includes it.
+  # user with a path includes it. `batch-*` there is debug.tf's user, whose
+  # key is made by hand; the access-key actions below reach it too, but
+  # terraform never calls them for it.
   managed_user_arns = [
     "${local.iam_prefix}:user/system/ecr-pusher-*",
+    "${local.iam_prefix}:user/system/${var.resource_name_prefix}-*",
   ]
 
   managed_instance_profile_arns = [
@@ -266,9 +269,9 @@ data "aws_iam_policy_document" "ci_apply_iam" {
   }
 
   # The ECR push users, and their access keys. Creating an access key is the
-  # sharpest thing in this policy, so it is scoped to `ecr-pusher-*` on the
-  # `/system/` path: those users can push to one ECR repository each and hold
-  # nothing else.
+  # sharpest thing in this policy, so it is scoped to the `/system/` users this
+  # stack owns: `ecr-pusher-*`, which can push to one ECR repository each, and
+  # `batch-debug`, which can only assume its role. Neither holds anything else.
   statement {
     sid    = "ManageEcrPushUsers"
     effect = "Allow"

@@ -59,3 +59,19 @@ output "oidc_provider_arn" {
   description = "GitHub Actions OIDC provider trusted by both roles"
   value       = local.oidc_provider_arn
 }
+
+# ------------------------------------------------------------------------------
+# Debugging
+# ------------------------------------------------------------------------------
+# The user holds nothing but the assume; its access key is created by hand
+# (IAM console, or `aws iam create-access-key --user-name ...`) so the secret
+# stays out of state.
+
+output "debug_role_arn" {
+  description = "Read and submit jobs across the queue; assumed from debug_user_name"
+  value       = aws_iam_role.debug.arn
+}
+
+output "debug_user_name" {
+  value = aws_iam_user.debug.name
+}
