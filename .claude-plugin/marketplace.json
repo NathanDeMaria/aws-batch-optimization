@@ -1,0 +1,14 @@
+{
+  "name": "aws-batch-optimization",
+  "owner": {
+    "name": "Nathan DeMaria"
+  },
+  "description": "Claude Code plugins for working with the shared AWS Batch stack this repo defines.",
+  "plugins": [
+    {
+      "name": "batch-tools",
+      "source": "./plugins/batch-tools",
+      "description": "Tools for the repos that run jobs on this stack's AWS Batch queue: wait for CI's image of a commit before submitting."
+    }
+  ]
+}
