@@ -1,0 +1,12 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "batch-tools",
+  "version": "0.1.0",
+  "description": "Tools for the repos that run jobs on this stack's AWS Batch queue: wait for CI's image of a commit before submitting.",
+  "author": {
+    "name": "Nathan DeMaria"
+  },
+  "skills": [
+    "./skills/"
+  ]
+}
