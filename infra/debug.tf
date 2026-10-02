@@ -6,7 +6,7 @@
 #
 # Assumed from one IAM user whose only permission is the assume. Its access key
 # is made by hand in the console, not here, so the secret never lands in
-# terraform state -- unlike the ECR pushers' keys, which predate this and do.
+# terraform state.
 # Anyone else who should debug is added to the role's trust, not given a key.
 
 locals {
