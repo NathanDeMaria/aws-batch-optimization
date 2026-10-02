@@ -75,3 +75,8 @@ output "debug_role_arn" {
 output "debug_user_name" {
   value = aws_iam_user.debug.name
 }
+
+output "shared_outputs_parameter_arn" {
+  description = "What a consumer's CI role needs ssm:GetParameter on (ssm.tf)"
+  value       = aws_ssm_parameter.shared_outputs.arn
+}
