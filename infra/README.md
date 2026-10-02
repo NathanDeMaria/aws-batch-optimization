@@ -41,11 +41,12 @@ to a single `${prefix}-*`; here the pre-existing roles are named `job-role`,
 four are listed individually and everything new goes under `batch-*`. Keep new
 IAM under that prefix and the list stops growing.
 
-The sharpest grant is `iam:CreateAccessKey`, needed because `repos/` mints a
-push user for the ECR repositories that push with a key (`key_pushers`:
-endgame and cassandra). It's scoped to `ecr-pusher-*` on the `/system/` path,
-and those users can push to exactly one repository each. gold-rush's
-repository has no user: its CI pushes by OIDC, with a role its own stack owns.
+The sharpest grant is `iam:CreateAccessKey`, scoped to the users on the
+`/system/` path this stack owns. No ECR repository has a push user any more:
+endgame, cassandra and gold-rush each push from CI by OIDC, with an image role
+their own `jobs/` stack owns, so `repos/` creates repositories and nothing
+else. The `ecr-pusher-*` grants stay only until the apply that deletes those
+users has run (see `managed_user_arns` in `oidc.tf`).
 
 ### Setup
 

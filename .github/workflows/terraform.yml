@@ -186,9 +186,10 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          # `ecr_iam_users` is sensitive and `terraform output -json` includes
-          # sensitive values in full, so this filters to the outputs that are
-          # safe to print rather than dumping everything. Access keys in a
+          # `terraform output -json` includes sensitive values in full, so
+          # this filters to the outputs that are safe to print rather than
+          # dumping everything. Nothing here is sensitive today -- the ECR
+          # push users' access keys were the last of it -- but a secret in a
           # world-readable run log would be the whole point of the exercise
           # lost.
           {
