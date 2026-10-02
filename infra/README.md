@@ -77,7 +77,13 @@ make lint         # what CI runs; no credentials needed
 ```
 
 `make outputs` is what the app repos read for bucket names, the queue name and
-ECR URLs. It contains ECR push credentials, so it stays out of the repo.
+ECR URLs on a laptop. It contains ECR push credentials, so it stays out of the
+repo.
+
+Their terraform and CI read the same values from the SSM parameter
+`/batch/shared-outputs` instead (`ssm.tf`): only the non-sensitive outputs, as
+JSON keyed by output name, so a role can be granted that one parameter rather
+than the whole state file.
 
 ## Debugging
 

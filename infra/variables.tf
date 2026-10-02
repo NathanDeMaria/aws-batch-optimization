@@ -73,3 +73,15 @@ variable "resource_name_prefix" {
   type        = string
   default     = "batch"
 }
+
+variable "shared_outputs_parameter" {
+  description = <<-EOT
+    SSM parameter (ssm.tf) the consuming stacks read this one's outputs from.
+
+    Their names for it must match: cassandra, gold-rush and EndGame each
+    default a variable to this, and their image workflows set it as
+    SHARED_OUTPUTS_PARAMETER.
+  EOT
+  type        = string
+  default     = "/batch/shared-outputs"
+}
