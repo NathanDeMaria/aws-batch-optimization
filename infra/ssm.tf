@@ -29,5 +29,6 @@ resource "aws_ssm_parameter" "shared_outputs" {
     batch_execution_role_arn = module.batch_roles.execution_role_arn
     batch_scheduler_role_arn = module.batch_roles.scheduler_role_arn
     repo_urls                = module.repos.named_urls
+    failure_topic_arn        = aws_sns_topic.failures.arn
   })
 }

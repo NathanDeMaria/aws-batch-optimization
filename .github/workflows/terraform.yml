@@ -26,6 +26,11 @@ permissions:
 env:
   TF_IN_AUTOMATION: "1"
   AWS_REGION: us-east-2
+  # The tfvars file `make plan`/`make apply` reads locally is gitignored, so CI
+  # supplies the one value without a default as TF_VAR_*. Plan and apply both
+  # need it, or a plan would show the subscription going away. An unset secret
+  # arrives as "", which alerts.tf treats as null.
+  TF_VAR_notification_email: ${{ secrets.NOTIFICATION_EMAIL }}
 
 jobs:
   # No credentials and no backend, so this runs everywhere -- including before

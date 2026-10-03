@@ -67,6 +67,22 @@ provider per URL per account and invisible-string creates one in this same
 account, so this stack expects to find it. If this account has none yet, set it
 true here and false there.
 
+## Failure alerts
+
+`alerts.tf` emails when any job on the queue fails: one EventBridge rule on the
+queue, one SNS topic (`batch-failures`), one email subscription. The app repos
+declare no Batch failure rule of their own, so a new app is covered without
+doing anything, and nobody gets the same failure twice. Array children are
+filtered out, so a failed array sends one email, not one per child.
+
+The topic ARN is in `/batch/shared-outputs` as `failure_topic_arn`, for alerts
+that aren't a job failing: endgame points its Step Functions chain failures at
+it.
+
+The address is the `NOTIFICATION_EMAIL` secret in CI (`notification_email`
+locally). A new subscription only delivers after the confirmation link AWS
+emails to it has been clicked.
+
 ## Local use
 
 ```bash

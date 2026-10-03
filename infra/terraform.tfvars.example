@@ -8,3 +8,7 @@
 # IAM permits exactly one per URL, and invisible-string creates one in this
 # same account -- so the default here is false.
 # create_oidc_provider = true
+
+# Where to email job failures, for every app on the queue (alerts.tf). CI reads
+# it from the NOTIFICATION_EMAIL secret; unset, nobody is subscribed.
+# notification_email = "you@example.com"
