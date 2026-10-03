@@ -45,8 +45,7 @@ The sharpest grant is `iam:CreateAccessKey`, scoped to the users on the
 `/system/` path this stack owns. No ECR repository has a push user any more:
 endgame, cassandra and gold-rush each push from CI by OIDC, with an image role
 their own `jobs/` stack owns, so `repos/` creates repositories and nothing
-else. The `ecr-pusher-*` grants stay only until the apply that deletes those
-users has run (see `managed_user_arns` in `oidc.tf`).
+else.
 
 ### Setup
 
