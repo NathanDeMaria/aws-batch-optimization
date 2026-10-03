@@ -85,3 +85,13 @@ variable "shared_outputs_parameter" {
   type        = string
   default     = "/batch/shared-outputs"
 }
+
+variable "notification_email" {
+  description = <<-EOT
+    Where alerts.tf emails job failures, for every app on the queue. Null (or
+    "", which is what an unset CI secret arrives as) keeps the topic and the
+    rule but subscribes nobody.
+  EOT
+  type        = string
+  default     = null
+}
