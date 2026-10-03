@@ -54,20 +54,13 @@ locals {
 
   managed_policy_arns = [
     "${local.iam_prefix}:policy/${var.resource_name_prefix}-*",
-    "${local.iam_prefix}:policy/ecr-push-policy-*",
   ]
 
   # The path matters: users here live on `/system/`, and the ARN of a user
   # with a path includes it. `batch-*` there is debug.tf's user, whose key is
   # made by hand; the access-key actions below reach it too, but terraform
   # never calls them for it.
-  #
-  # `ecr-pusher-*` (and `ecr-push-policy-*` above) are what `repos` used to
-  # mint a push user per ECR repository with. Nothing creates them any more,
-  # but the apply that deletes them runs as this role, so they stay listed
-  # until that apply has landed. Drop both lines after it.
   managed_user_arns = [
-    "${local.iam_prefix}:user/system/ecr-pusher-*",
     "${local.iam_prefix}:user/system/${var.resource_name_prefix}-*",
   ]
 
@@ -275,8 +268,7 @@ data "aws_iam_policy_document" "ci_apply_iam" {
 
   # The `/system/` users this stack owns, and their access keys. Creating an
   # access key is the sharpest thing in this policy, so it is scoped to those:
-  # `batch-debug`, which can only assume its role, and the retired
-  # `ecr-pusher-*` (see `managed_user_arns`).
+  # `batch-debug`, which can only assume its role.
   statement {
     sid    = "ManageSystemUsers"
     effect = "Allow"
