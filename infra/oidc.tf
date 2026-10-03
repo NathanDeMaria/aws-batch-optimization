@@ -284,6 +284,9 @@ data "aws_iam_policy_document" "ci_apply_iam" {
       "iam:CreateUser",
       "iam:DeleteUser",
       "iam:GetUser",
+      # The provider lists a user's groups before deleting it, to remove it
+      # from them, whether or not it is in any.
+      "iam:ListGroupsForUser",
       "iam:TagUser",
       "iam:UntagUser",
       "iam:ListUserTags",
