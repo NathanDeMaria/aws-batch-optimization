@@ -49,13 +49,28 @@ resource "aws_batch_compute_environment" "compute" {
   compute_resources {
     instance_role = module.instance_role.arn
 
-    # Three generations of the general-purpose family, both architectures,
-    # three sizes each: 24 instance types, so 72 spot pools across the three
-    # availability zones where the old list had 9. Pool count is the whole
-    # input to the allocation strategy below -- a strategy cannot route around
-    # a shortage it has nowhere to route to -- and churn is the real cost here:
-    # cassandra's 2026-09-28 run had 26 reclaimed attempts across 49 children,
-    # one of them nine times in a row.
+    # Three generations of the general-purpose family, three sizes each: 18
+    # instance types, so 54 spot pools across the three availability zones
+    # where the old list had 9. Pool count is the whole input to the allocation
+    # strategy below -- a strategy cannot route around a shortage it has
+    # nowhere to route to -- and churn is the real cost here: cassandra's
+    # 2026-09-28 run had 26 reclaimed attempts across 49 children, one of them
+    # nine times in a row.
+    #
+    # x86 only, and not by choice. Graviton was in this list for one apply,
+    # which Batch rejected outright:
+    #
+    #   ClientException: arm-based instance type cannot be used with other
+    #   instance types.
+    #
+    # A compute environment is single-architecture, full stop. Mixing the two
+    # means two environments on one queue, and a queue tries its environments
+    # in order rather than pricing across them -- so the second would be
+    # overflow capacity for when the first hits `max_vcpus`, not a cheaper
+    # alternative the strategy could pick. Measured below, the best Graviton
+    # option beats the best x86 one by about 1%, which does not pay for a
+    # second environment, a second `max_vcpus` to apportion, and an ordering
+    # to reason about. Worth revisiting only if churn stays bad with 54 pools.
     #
     # Deliberately all `m`, no `c` and no `r`. The jobs on this queue reserve
     # one vCPU and 2 GiB (see cassandra's optimize definition), so 4 GiB per
@@ -68,24 +83,19 @@ resource "aws_batch_compute_environment" "compute" {
     # a price that reflects it.
     #
     # Measured per job-hour in us-east-2 on 2026-10-04, which is the number
-    # that matters rather than the hourly rate: m7g.2xlarge $0.0096,
-    # m8a.large $0.0097, m8g.2xlarge $0.0102, m8i.large and m6i.xlarge
-    # $0.0111, against the $0.0300 a 2-vCPU job on an m6a.large used to cost.
-    # Graviton wins at 2xlarge and loses badly at large (m8g.large is a thin
-    # pool at $0.0398-0.0610) -- which is an argument for listing both and
-    # letting the strategy choose, not for picking an architecture here.
+    # that matters rather than the hourly rate: m8a.large $0.0097, m8i.large
+    # and m6i.xlarge $0.0111, m7i.xlarge and m6a.xlarge $0.0143-0.0147,
+    # against the $0.0300 a 2-vCPU job on an m6a.large used to cost. The
+    # Graviton options this cannot have were m7g.2xlarge $0.0096 and
+    # m8g.2xlarge $0.0102 -- so m8a.large gives up 1% to the best of them,
+    # and m8g.large would have been the worst instance on the list either
+    # way (a thin pool at $0.0398-0.0610).
     #
     # Capped at 2xlarge rather than naming bare families. A family name lets
     # Batch launch anything in it, and with `max_vcpus` at 16 that could be a
     # single 16-vCPU instance holding sixteen searches, all of which a single
     # reclaim would take out at once. Eight is enough blast radius.
     instance_type = [
-      # Graviton. The image is a manifest list covering both architectures as
-      # of cassandra's 2026-10-04 build; before that this fleet could only be
-      # x86, because the image could only be x86.
-      "m7g.large", "m7g.xlarge", "m7g.2xlarge",
-      "m8g.large", "m8g.xlarge", "m8g.2xlarge",
-
       "m6i.large", "m6i.xlarge", "m6i.2xlarge",
       "m6a.large", "m6a.xlarge", "m6a.2xlarge",
       "m7i.large", "m7i.xlarge", "m7i.2xlarge",
@@ -94,15 +104,21 @@ resource "aws_batch_compute_environment" "compute" {
       "m8a.large", "m8a.xlarge", "m8a.2xlarge",
     ]
 
-    # No `image_id`. It was a hand-pasted x86 AMI id, which is not merely
-    # stale -- it is what would stop every Graviton instance above from ever
-    # launching, since Batch would hand a Graviton host an x86-64 AMI. There
-    # is no arm64 image *type* to pair it with either: for ECS the types are
-    # ECS_AL2, ECS_AL2_NVIDIA, ECS_AL2023 and ECS_AL2023_NVIDIA, and
-    # ECS_AL2023 resolves to whichever architecture the instance it is
-    # launching happens to be. Stated rather than left to the default so the
-    # choice is visible, and `image_id` is deprecated in the Batch API in
-    # favour of exactly this block.
+    # No `image_id`. It was a hand-pasted AMI id, last built 2025-12-18, that
+    # nothing would have told us was stale and that pins the fleet to one
+    # architecture and one patch level by hand.
+    #
+    # `image_type` is the load-bearing half. The environment's *declared* type
+    # was ECS_AL2 -- never set here, so AWS defaulted it, and the pinned AMI
+    # (an AL2023 image) was overriding it, which is most likely why the pin
+    # existed. Batch has blocked creating ECS environments on Batch-provided
+    # Amazon Linux 2 AMIs since 2026-06-30, and every change in this block
+    # replaces the environment, so dropping the pin without naming AL2023
+    # would be rejected. ECS_AL2023 also resolves per architecture, which is
+    # what a future arm environment would need instead of a second pin.
+    #
+    # Stated rather than left to the default so the choice is visible, and
+    # `image_id` is deprecated in the Batch API in favour of this block.
     ec2_configuration {
       image_type = "ECS_AL2023"
     }
