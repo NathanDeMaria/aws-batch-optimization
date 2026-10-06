@@ -161,6 +161,15 @@ data "aws_iam_policy_document" "debug" {
     actions   = ["s3:GetObject"]
     resources = [for arn in module.buckets.arns : "${arn}/*"]
   }
+
+  # The queue, bucket and repo names every consumer's tooling finds things by
+  # (ssm.tf). Nothing in it is secret, and without it a debug session has to
+  # ask someone for the queue name before it can look at anything.
+  statement {
+    sid       = "ReadSharedOutputs"
+    actions   = ["ssm:GetParameter"]
+    resources = [aws_ssm_parameter.shared_outputs.arn]
+  }
 }
 
 resource "aws_iam_policy" "debug" {
