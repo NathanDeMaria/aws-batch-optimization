@@ -162,6 +162,30 @@ data "aws_iam_policy_document" "debug" {
     resources = [for arn in module.buckets.arns : "${arn}/*"]
   }
 
+  # Which instance a job is on, and what kind. A job's attempt names its ECS
+  # container instance and nothing else; the type is two lookups away. It
+  # matters because the environment mixes eighteen types across two vendors
+  # and three generations, and cassandra's per-probe times have moved 2.5x
+  # between runs with nothing changed but where the children landed.
+  # Read-only, and EC2's Describe calls take no resource.
+  statement {
+    sid = "ReadContainerInstances"
+    actions = [
+      "ecs:DescribeContainerInstances",
+      "ecs:ListContainerInstances",
+    ]
+    resources = [
+      module.compute_env.ecs_cluster_arn,
+      "arn:${local.partition}:ecs:${local.account_arn_suffix}:container-instance/*",
+    ]
+  }
+
+  statement {
+    sid       = "ReadInstances"
+    actions   = ["ec2:DescribeInstances"]
+    resources = ["*"]
+  }
+
   # The queue, bucket and repo names every consumer's tooling finds things by
   # (ssm.tf). Nothing in it is secret, and without it a debug session has to
   # ask someone for the queue name before it can look at anything.
