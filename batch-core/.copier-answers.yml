@@ -1,0 +1,9 @@
+# Changes here will be overwritten by Copier
+_commit: v1.1.0
+_src_path: gh:NathanDeMaria/mirrorball
+aws: true
+ci_workflow: false
+description: Submit and track AWS Batch jobs for an optimization
+kind: library
+module_name: batch_core
+project_name: batch-core
