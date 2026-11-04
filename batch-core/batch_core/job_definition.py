@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from aiobotocore.session import AioBaseClient
 
 from .config import Config
@@ -16,7 +17,7 @@ class JobDefinition:
         cls,
         batch_client: AioBaseClient,
         image: str,
-        config: Config = None,
+        config: Config | None = None,
     ):
         """
         Make a new job definition based on an image
@@ -42,7 +43,7 @@ class JobDefinition:
         """
         name_base = self._arn.split("/")[-1].split(":")[0]
         job = await self._batch_client.submit_job(
-            jobName=f"{name_base}-{int(datetime.now(timezone.utc).timestamp())}",
+            jobName=f"{name_base}-{int(datetime.now(UTC).timestamp())}",
             jobQueue=self._config.job_queue_name,
             jobDefinition=self._arn,
             containerOverrides=dict(command=_build_command(args, kwargs)),
