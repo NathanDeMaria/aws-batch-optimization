@@ -1,8 +1,8 @@
 import json
 import os
 from dataclasses import dataclass
-from dataclasses_json import DataClassJsonMixin
 
+from dataclasses_json import DataClassJsonMixin
 
 _CONFIG_FILE_PATH_ENV_VAR = "BATCH_CONFIG_FILE_PATH"
 
@@ -22,7 +22,7 @@ class Config(DataClassJsonMixin):
     repo_urls: dict[str, str]
 
     @classmethod
-    def load(cls, file_path: str = None):
+    def load(cls, file_path: str | None = None):
         """
         Read the config file from terraform output.
         """

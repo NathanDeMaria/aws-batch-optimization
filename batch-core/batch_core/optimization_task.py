@@ -1,7 +1,8 @@
 import asyncio
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 from uuid import uuid4
+
 from aiobotocore.session import AioBaseClient, get_session
 from botocore.exceptions import ClientError
 
@@ -22,7 +23,7 @@ class OptimizationTask:
         arn: str,
         s3_client: AioBaseClient,
         batch_client: AioBaseClient,
-        config: Config = None,
+        config: Config | None = None,
     ):
         self._arn = arn
         self._s3_client = s3_client
@@ -69,7 +70,7 @@ class OptimizationTask:
 
 
 @asynccontextmanager
-async def create_job_definition(arn: str) -> AsyncIterator[OptimizationTask]:
+async def create_job_definition(arn: str) -> AsyncGenerator[OptimizationTask]:
     """
     Create a task def that'll run batch tasks
     """

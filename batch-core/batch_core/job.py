@@ -1,7 +1,7 @@
 import asyncio
-from typing import Literal, FrozenSet
-import aiobotocore
+from typing import Literal
 
+from aiobotocore.session import AioBaseClient
 
 _Status = Literal[
     "SUBMITTED",
@@ -12,11 +12,11 @@ _Status = Literal[
     "SUCCEEDED",
     "FAILED",
 ]
-_FINISHED_STATUSES: FrozenSet[_Status] = frozenset(["SUCCEEDED", "FAILED"])
+_FINISHED_STATUSES: frozenset[_Status] = frozenset(["SUCCEEDED", "FAILED"])
 
 
 class Job:
-    def __init__(self, job_id: str, batch_client: aiobotocore.session.AioBaseClient):
+    def __init__(self, job_id: str, batch_client: AioBaseClient):
         self._job_id = job_id
         self._batch_client = batch_client
 
